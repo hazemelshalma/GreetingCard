@@ -1,0 +1,173 @@
+ <!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>بطاقة تهنئة عيد الفطر</title>
+  <style>
+    body {
+      text-align: center;
+      font-family: Tahoma, Arial, sans-serif;
+      direction: rtl;
+      background-color: #f0f0f0;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      margin: auto;
+      max-width: 800px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+    }
+    input, button {
+      margin: 10px;
+      padding: 8px;
+      font-size: 16px;
+    }
+    #canvas {
+      border: 1px solid #ccc;
+      margin-top: 20px;
+      display: none; /* سيظهر بعد رسم البطاقة */
+    }
+    #downloadLink {
+      display: none; /* سيظهر بعد رسم البطاقة */
+      margin-top: 20px;
+      font-size: 18px;
+      text-decoration: none;
+      background-color: #4CAF50;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 5px;
+    }
+    #downloadLink:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🎉 اصنع بطاقة تهنئة خاصة بك مع مكتب الأستاذ صبحى الشلمه! 🎉</h2>
+    <div>
+      <input type="text" id="userName" placeholder="أدخل اسمك">
+      <input type="file" id="userImage" accept="image/*">
+      <button onclick="generateCard()">إنشاء التهنئة</button>
+    </div>
+
+    <!-- Canvas أكبر ليتسع التصميم -->
+    <canvas id="canvas" width="800" height="1000"></canvas>
+    <br>
+    <a id="downloadLink" download="تهنئة_عيد_الفطر.png">تحميل التهنئة</a>
+  </div>
+
+  <script>
+    function generateCard() {
+      const name = document.getElementById("userName").value.trim();
+      const imageInput = document.getElementById("userImage").files[0];
+
+      if (!name || !imageInput) {
+        alert("يرجى إدخال الاسم ورفع صورة!");
+        return;
+      }
+
+      // نستخدم FileReader لقراءة صورة المستخدم
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        const userImg = new Image();
+        userImg.src = event.target.result;
+
+        // صورة الخلفية (تصميم شبيه بالذي أرسلته)
+        const bg = new Image();
+        bg.src = "bg.png";
+
+        // صورة اللوجو
+        const logo = new Image();
+        logo.src = "logo.png";
+
+        // ننتظر تحميل الصور الثلاثة قبل الرسم
+        let imagesLoaded = 0;
+        userImg.onload = onImageLoad;
+        bg.onload = onImageLoad;
+        logo.onload = onImageLoad;
+
+        function onImageLoad() {
+          imagesLoaded++;
+          if (imagesLoaded === 3) {
+            drawCard(userImg, bg, logo, name);
+          }
+        }
+      };
+      reader.readAsDataURL(imageInput);
+    }
+
+    function drawCard(userImg, bg, logo, name) {
+      const canvas = document.getElementById("canvas");
+      const ctx = canvas.getContext("2d");
+
+      // 1) رسم خلفية التصميم على كامل مساحة الـ Canvas
+      ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
+
+      // 2) قص صورة المستخدم بشكل دائري في المنتصف
+      const diameter = 300;  // قطر الدائرة
+      const radius = diameter / 2;
+      const circleCenterX = canvas.width / 2;
+      const circleCenterY = 280; // إنزال الصورة إلى الأسفل
+
+      // حساب أصغر بعد في صورة المستخدم (للاقتصاص مربّع)
+      const side = Math.min(userImg.width, userImg.height);
+      const offsetX = (userImg.width - side) / 2;
+      const offsetY = (userImg.height - side) / 2;
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(circleCenterX, circleCenterY, radius, 0, 2 * Math.PI);
+      ctx.closePath();
+      ctx.clip();
+
+      ctx.drawImage(
+        userImg,
+        offsetX, offsetY, side, side,
+        circleCenterX - radius, circleCenterY - radius, diameter, diameter
+      );
+      ctx.restore();
+
+      // 3) رسم مستطيل يحتوي على اسم المستخدم أسفل الدائرة
+      const rectWidth = 400;
+      const rectHeight = 50;
+      const rectX = (canvas.width - rectWidth) / 2;
+      const rectY = circleCenterY + radius + 30;
+
+      // تغيير لون المستطيل إلى اللون الذهبي الغامق
+      ctx.fillStyle = "#B8860B"; // لون ذهبي غامق
+      ctx.fillRect(rectX, rectY, rectWidth, rectHeight);
+
+      // كتابة الاسم في المستطيل باللون الأبيض
+      ctx.fillStyle = "#fff";
+      ctx.font = "bold 22px Tahoma";
+      ctx.textAlign = "center";
+      ctx.fillText(name, canvas.width / 2, rectY + 33);
+
+      // 4) كتابة بقية النصوص باللون الأبيض أسفل المستطيل
+      ctx.fillStyle = "#fff";
+      ctx.font = "bold 26px Tahoma";
+      ctx.fillText("يهنئكم", canvas.width / 2, rectY + rectHeight + 60);
+      ctx.fillText("بحلول عيد الفطر المبارك", canvas.width / 2, rectY + rectHeight + 100);
+
+      ctx.font = "20px Tahoma";
+      ctx.fillText("كل عام وأنتم بخير", canvas.width / 2, rectY + rectHeight + 140);
+      ctx.fillText("تقبل الله منا ومنكم صالح الأعمال", canvas.width / 2, rectY + rectHeight + 170);
+
+      // 5) رسم اللوجو في الأسفل بحجم أكبر (الضعف كما طلبت)
+      const logoSize = 240;
+      const logoX = (canvas.width - logoSize) / 2;
+      const logoY = canvas.height - logoSize - 30;
+      ctx.drawImage(logo, logoX, logoY, logoSize, logoSize);
+
+      // 6) إظهار الـ Canvas ورابط التحميل
+      canvas.style.display = "block";
+      const downloadLink = document.getElementById("downloadLink");
+      downloadLink.href = canvas.toDataURL("image/png");
+      downloadLink.style.display = "inline-block";
+    }
+  </script>
+</body>
+</html>
