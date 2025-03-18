@@ -58,12 +58,36 @@
     #downloadBtn:hover {
       background-color: #45a049;
     }
+    /* قسم شعار المكتب مع الصورة الإضافية */
+    #officeHeader {
+      margin: 20px 0;
+    }
+    #officeHeader .flex-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    /* استخدام logo2.png للوجو الخاص برأس الصفحة */
+    #officeHeader img:first-child {
+      max-height: 100px;
+      margin-right: 20px;
+    }
+    #officeHeader img:last-child {
+      max-height: 100px;
+    }
+    #officeHeader .officeTitle {
+      background-color: #333;
+      color: #fff;
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 16px;
+    }
   </style>
 </head>
 <body>
 
   <div class="container">
-    <!-- العنوان المطلوب في الصفحة الرئيسية -->
+    <!-- العنوان الرئيسي للصفحة -->
     <h2>اصنع تهنئة خاصة بك لعيد الفطر المبارك مع مكتب الأستاذ صبحى الشلمه</h2>
     <p style="font-size: 16px; margin-bottom: 20px;">نهنئكم بحلول عيد الفطر المبارك 🎉</p>
 
@@ -72,6 +96,20 @@
     <br>
     <input type="file" id="imageInput" accept="image/*">
     <br><br>
+
+    <!-- القسم الجديد: عرض شعار المكتب مع صورة إضافية وشريط العنوان -->
+    <div id="officeHeader">
+      <div class="flex-container">
+        <!-- اللوجو الخاص برأس الصفحة باستخدام logo2.png -->
+        <img src="logo2.png" alt="شعار المكتب الرئيسي">
+        <!-- صورة إضافية للمكتب -->
+        <img src="officePhoto.png" alt="صورة المكتب">
+      </div>
+      <div class="officeTitle">
+        أبو المطامير كوبرى عاشور امام سوبر ماركت أبو غريب بجوار د/ فريد الملا
+      </div>
+    </div>
+    <!-- نهاية القسم الجديد -->
 
     <!-- حاوية عرض Cropper -->
     <div id="cropperContainer" class="hidden">
@@ -146,11 +184,11 @@
       finalCanvas.height = 800;
       const ctx = finalCanvas.getContext('2d');
 
-      // تحميل الصور (الخلفية + اللوجو + صورة المستخدم المقتصة)
+      // تحميل الصور (الخلفية + اللوجو الخاص بالتهنئة + صورة المستخدم المقتصة)
       const bg = new Image();
       bg.src = "bg.png"; // خلفية البطاقة
       const logo = new Image();
-      logo.src = "logo.png"; // لوجو المكتب
+      logo.src = "logo.png"; // لوجو التهنئة (يبقى logo.png)
       const userImg = new Image();
       userImg.src = croppedImageData; // الصورة المقتصة من cropper
 
@@ -198,7 +236,7 @@
       ctx.textAlign = "center";
       ctx.fillText(nameInput.value, finalCanvas.width / 2, rectY + 33);
 
-      // جملة “أهنئكم بحلول عيد الفطر المبارك” بحجم أصغر (مثلاً 26px)
+      // جملة “أهنئكم بحلول عيد الفطر المبارك” بحجم 26px
       ctx.font = "700 26px 'Cairo', sans-serif";
       ctx.fillText("أهنئكم بحلول عيد الفطر المبارك", finalCanvas.width / 2, rectY + rectHeight + 70);
 
@@ -207,11 +245,10 @@
       ctx.fillText("تقبل الله منا ومنكم صالح الأعمال", finalCanvas.width / 2, rectY + rectHeight + 110);
       ctx.fillText("كل عام وأنتم بخير", finalCanvas.width / 2, rectY + rectHeight + 150);
 
-      // رسم اللوجو في الأسفل بحجم 240
-      // لإنزاله درجة للأسفل قللنا المسافة من الأسفل (بدل 30 أصبحت 10)
-      const logoSize = 160;
+      // رسم اللوجو في الأسفل بحجم 240 (يبدأ من أسفل التصميم تمامًا)
+      const logoSize = 170;
       const logoX = (finalCanvas.width - logoSize) / 2;
-      const logoY = finalCanvas.height - logoSize  ; // إنزال اللوجو للأسفل أكثر
+      const logoY = finalCanvas.height - logoSize; 
       ctx.drawImage(logo, logoX, logoY, logoSize, logoSize);
 
       // إظهار الـ Canvas
