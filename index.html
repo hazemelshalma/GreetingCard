@@ -203,13 +203,13 @@
       ctx.fillText("أهنئكم بحلول عيد الفطر المبارك", finalCanvas.width / 2, rectY + rectHeight + 70);
 
       // الجمل الباقية بخط 24px
-      ctx.font = "700 20px 'Cairo', sans-serif";
+      ctx.font = "700 15px 'Cairo', sans-serif";
       ctx.fillText("تقبل الله منا ومنكم صالح الأعمال", finalCanvas.width / 2, rectY + rectHeight + 110);
       ctx.fillText("كل عام وأنتم بخير", finalCanvas.width / 2, rectY + rectHeight + 150);
 
       // رسم اللوجو في الأسفل بحجم 240
       // لإنزاله درجة للأسفل قللنا المسافة من الأسفل (بدل 30 أصبحت 10)
-      const logoSize = 240;
+      const logoSize = 200;
       const logoX = (finalCanvas.width - logoSize) / 2;
       const logoY = finalCanvas.height - logoSize -1; // إنزال اللوجو للأسفل أكثر
       ctx.drawImage(logo, logoX, logoY, logoSize, logoSize);
