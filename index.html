@@ -1,214 +1,127 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-  <meta charset="UTF-8">
-  <title>بطاقة تهنئة مع Cropper.js</title>
-  <!-- إضافة Cropper.js CSS -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" 
-        integrity="sha512-t0BZZqPeXX6jrGU4vsU0F5S3PuOHKPNdxhCglEWTbZ3amSYUllMzIpfGGJk3g7XnGLHK3prn6dDFNsWsG9RH2g==" 
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <style>
-    body {
-      text-align: center;
-      font-family: Tahoma, Arial, sans-serif;
-      direction: rtl;
-      background-color: #f0f0f0;
-      margin: 0;
-      padding: 20px;
-    }
-    .container {
-      margin: auto;
-      max-width: 800px;
-      background: #fff;
-      padding: 20px;
-      border-radius: 10px;
-    }
-    input, button {
-      margin: 10px;
-      padding: 8px;
-      font-size: 16px;
-    }
-    #canvas {
-      border: 1px solid #ccc;
-      margin-top: 20px;
-      display: none; /* سيظهر بعد رسم البطاقة */
-    }
-    #downloadLink {
-      display: none;
-      margin-top: 20px;
-      font-size: 18px;
-      text-decoration: none;
-      background-color: #4CAF50;
-      color: #fff;
-      padding: 10px 20px;
-      border-radius: 5px;
-    }
-    #downloadLink:hover {
-      background-color: #45a049;
-    }
-    /* تنسيق لحاوية Cropper */
-    #cropperContainer {
-      max-width: 500px;
-      margin: 20px auto;
-      display: none;
-    }
-    #cropperImage {
-      width: 100%;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تهنئة عيد الفطر</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+    <style>
+        body { text-align: center; font-family: Arial, sans-serif; }
+        #canvas-container { position: relative; display: none; }
+        canvas { max-width: 100%; }
+        #preview { width: 300px; height: 300px; overflow: hidden; margin: auto; }
+        .hidden { display: none; }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h2>🎉 اصنع بطاقة تهنئة عيد الفطر مع مكتب الأستاذ صبحى الشلمه! 🎉</h2>
-    <!-- نموذج لإدخال الاسم وتحميل الصورة -->
-    <div>
-      <input type="text" id="userName" placeholder="أدخل اسمك">
-      <input type="file" id="userImage" accept="image/*">
-      <button onclick="openCropper()">فتح أداة التعديل</button>
-    </div>
-    
-    <!-- حاوية لعرض صورة cropper لتعديل الصورة -->
-    <div id="cropperContainer">
-      <img id="cropperImage" src="" alt="تعديل الصورة">
-      <br>
-      <button onclick="cropImage()">اعتماد القص</button>
-    </div>
-    
-    <!-- Canvas لعرض البطاقة النهائية -->
-    <canvas id="canvas" width="800" height="1000"></canvas>
-    <br>
-    <a id="downloadLink" download="تهنئة_عيد_الفطر.png">تحميل التهنئة</a>
-  </div>
 
-  <!-- إضافة Cropper.js JS -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js" 
-          integrity="sha512-QwSGFmV9++QRRZxUpY1wbzG2F+J3XhHS2PP/GzR+BgrwMeZ+R6G7eVRRNtPG0EWB/B0CAgprWT9W4g2DpqejKA==" 
-          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  
-  <script>
-    let cropper;
-    let croppedImageDataURL;
-    
-    // فتح أداة Cropper بعد رفع الصورة
-    function openCropper() {
-      const imageInput = document.getElementById('userImage').files[0];
-      if (!imageInput) {
-        alert("يرجى رفع صورة!");
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = function(event) {
-        const cropperImage = document.getElementById('cropperImage');
-        cropperImage.src = event.target.result;
-        document.getElementById('cropperContainer').style.display = "block";
-        if (cropper) {
-          cropper.destroy();
-        }
-        cropper = new Cropper(cropperImage, {
-          aspectRatio: 1,
-          viewMode: 1,
-          autoCropArea: 1
+    <h2> 🎉اصنع صورة تهنئة عيد الفطر المبارك مع مكتب الأستاذ صبحى الشلمه🎉 </h2>
+    <input type="text" id="nameInput" placeholder="أدخل اسمك">
+    <input type="file" id="imageInput" accept="image/*">
+    <br><br>
+
+    <!-- زر تحميل الصورة -->
+    <button id="generateBtn" class="hidden">إنشاء التهنئة</button>
+
+    <!-- عرض الصورة قبل القص -->
+    <div id="preview-container" class="hidden">
+        <h3>قص الصورة:</h3>
+        <div id="preview">
+            <img id="imagePreview">
+        </div>
+        <button id="cropBtn">اعتماد القص</button>
+    </div>
+
+    <!-- عرض التهنئة النهائية -->
+    <div id="canvas-container">
+        <h3>تهنئتك:</h3>
+        <canvas id="finalCanvas"></canvas>
+        <br>
+        <a id="downloadBtn" class="hidden" download="تهنئة.png">تحميل التهنئة</a>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <script>
+        let cropper;
+        const imageInput = document.getElementById("imageInput");
+        const imagePreview = document.getElementById("imagePreview");
+        const previewContainer = document.getElementById("preview-container");
+        const cropBtn = document.getElementById("cropBtn");
+        const generateBtn = document.getElementById("generateBtn");
+        const finalCanvas = document.getElementById("finalCanvas");
+        const canvasContainer = document.getElementById("canvas-container");
+        const downloadBtn = document.getElementById("downloadBtn");
+        const nameInput = document.getElementById("nameInput");
+
+        // 📌 عند اختيار صورة، عرضها في مربع القص
+        imageInput.addEventListener("change", function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    previewContainer.classList.remove("hidden");
+
+                    // تفعيل Cropper.js بعد تحميل الصورة
+                    if (cropper) cropper.destroy();
+                    cropper = new Cropper(imagePreview, {
+                        aspectRatio: 1, // قص الصورة بشكل مربع
+                        viewMode: 2
+                    });
+                };
+                reader.readAsDataURL(file);
+            }
         });
-      };
-      reader.readAsDataURL(imageInput);
-    }
-    
-    // اعتماد القص واستخدام الصورة المعدلة لإنشاء البطاقة
-    function cropImage() {
-      if (cropper) {
-        const canvasData = cropper.getCroppedCanvas({
-          width: 300,
-          height: 300
+
+        // 📌 عند الضغط على "اعتماد القص"
+        cropBtn.addEventListener("click", function() {
+            const croppedCanvas = cropper.getCroppedCanvas({ width: 300, height: 300 });
+            const croppedImage = croppedCanvas.toDataURL("image/png");
+
+            // إخفاء مربع القص
+            previewContainer.classList.add("hidden");
+            generateBtn.classList.remove("hidden");
+
+            // تخزين الصورة للتهنئة
+            generateBtn.dataset.croppedImage = croppedImage;
         });
-        croppedImageDataURL = canvasData.toDataURL("image/png");
-        // بعد القص، ننشئ البطاقة مع الصورة المُقتصة
-        generateCard(croppedImageDataURL);
-        document.getElementById('cropperContainer').style.display = "none";
-      }
-    }
-    
-    // إنشاء البطاقة باستخدام الصورة المعدلة
-    function generateCard(croppedImageDataURL) {
-      const name = document.getElementById("userName").value.trim();
-      if (!name) {
-        alert("يرجى إدخال الاسم!");
-        return;
-      }
-      // تحميل الخلفية (bg.png) واللوجو (logo.png)
-      const bg = new Image();
-      bg.src = "bg.png";
-      const logo = new Image();
-      logo.src = "logo.png";
-      let imagesLoaded = 0;
-      bg.onload = checkImagesLoaded;
-      logo.onload = checkImagesLoaded;
-      function checkImagesLoaded() {
-        imagesLoaded++;
-        if (imagesLoaded === 2) {
-          drawCard(croppedImageDataURL, bg, logo, name);
-        }
-      }
-    }
-    
-    // رسم البطاقة النهائية على الـ Canvas
-    function drawCard(userImgDataURL, bg, logo, name) {
-      const canvas = document.getElementById("canvas");
-      const ctx = canvas.getContext("2d");
-      // رسم الخلفية على كامل مساحة الـ Canvas
-      ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
-      
-      // رسم الصورة المقصوصة داخل دائرة
-      const userImg = new Image();
-      userImg.src = userImgDataURL;
-      userImg.onload = function() {
-        const diameter = 300;
-        const radius = diameter / 2;
-        const circleCenterX = canvas.width / 2;
-        const circleCenterY = 280; // إنزال الصورة إلى الأسفل
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(circleCenterX, circleCenterY, radius, 0, 2 * Math.PI);
-        ctx.closePath();
-        ctx.clip();
-        ctx.drawImage(userImg, circleCenterX - radius, circleCenterY - radius, diameter, diameter);
-        ctx.restore();
-        
-        // رسم مستطيل الاسم باللون الذهبي الغامق
-        const rectWidth = 400;
-        const rectHeight = 50;
-        const rectX = (canvas.width - rectWidth) / 2;
-        const rectY = circleCenterY + radius + 30;
-        ctx.fillStyle = "#B8860B";
-        ctx.fillRect(rectX, rectY, rectWidth, rectHeight);
-        
-        // كتابة الاسم داخل المستطيل باللون الأبيض
-        ctx.fillStyle = "#fff";
-        ctx.font = "bold 22px Tahoma";
-        ctx.textAlign = "center";
-        ctx.fillText(name, canvas.width / 2, rectY + 33);
-        
-        // كتابة باقي النصوص
-        ctx.fillStyle = "#fff";
-        ctx.font = "bold 26px Tahoma";
-        ctx.fillText("أهنئكم", canvas.width / 2, rectY + rectHeight + 60);
-        ctx.fillText("بحلول عيد الفطر المبارك", canvas.width / 2, rectY + rectHeight + 100);
-        ctx.font = "20px Tahoma";
-        ctx.fillText("كل عام وأنتم بخير", canvas.width / 2, rectY + rectHeight + 140);
-        ctx.fillText("تقبل الله منا ومنكم صالح الأعمال", canvas.width / 2, rectY + rectHeight + 170);
-        
-        // رسم اللوجو في الأسفل بحجم 240 (أكبر بمرتين)
-        const logoSize = 240;
-        const logoX = (canvas.width - logoSize) / 2;
-        const logoY = canvas.height - logoSize - 30;
-        ctx.drawImage(logo, logoX, logoY, logoSize, logoSize);
-        
-        // إظهار الـ Canvas ورابط التحميل
-        canvas.style.display = "block";
-        const downloadLink = document.getElementById("downloadLink");
-        downloadLink.href = canvas.toDataURL("image/png");
-        downloadLink.style.display = "inline-block";
-      };
-    }
-  </script>
+
+        // 📌 عند الضغط على "إنشاء التهنئة"
+        generateBtn.addEventListener("click", function() {
+            const ctx = finalCanvas.getContext("2d");
+            finalCanvas.width = 600;
+            finalCanvas.height = 800;
+
+            const bg = new Image();
+            bg.src = "background.png"; // ضع خلفية التهنئة الخاصة بك هنا
+
+            const userImage = new Image();
+            userImage.src = generateBtn.dataset.croppedImage;
+
+            bg.onload = function() {
+                ctx.drawImage(bg, 0, 0, finalCanvas.width, finalCanvas.height);
+                ctx.drawImage(userImage, 150, 50, 300, 300);
+
+                ctx.fillStyle = "gold";
+                ctx.fillRect(150, 380, 300, 50); // مستطيل الاسم
+
+                ctx.font = "bold 30px Arial";
+                ctx.fillStyle = "white";
+                ctx.textAlign = "center";
+                ctx.fillText(nameInput.value, 300, 415); // طباعة الاسم
+
+                ctx.font = "bold 24px Arial";
+                ctx.fillText("أهنئكم بحلول عيد الفطر المبارك", 300, 500);
+                ctx.fillText("تقبل الله منا ومنكم صالح الأعمال", 300, 540);
+                ctx.fillText("كل عام وأنتم بخير", 300, 580);
+
+                // إظهار التهنئة
+                canvasContainer.style.display = "block";
+                downloadBtn.classList.remove("hidden");
+                downloadBtn.href = finalCanvas.toDataURL("image/png");
+            };
+        });
+    </script>
+
 </body>
 </html>
